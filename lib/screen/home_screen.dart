@@ -1,3 +1,4 @@
+import 'package:calendar_scheduler/component/main_calendar.dart';
 import 'package:flutter/material.dart';
 
 class HomeScreen extends StatelessWidget {
@@ -6,7 +7,13 @@ class HomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Text("Home Screen 화면 생성")
+      body: SafeArea(
+        child: Column(
+          children: [
+            MainCalendar(),
+          ],
+        ),
+      ),
     );
   }
 }
