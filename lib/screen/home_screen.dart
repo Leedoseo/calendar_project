@@ -1,4 +1,5 @@
 import 'package:calendar_scheduler/component/main_calendar.dart';
+import 'package:calendar_scheduler/component/schedule_card.dart';
 import 'package:flutter/material.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -24,6 +25,11 @@ class _HomeScreenState extends State<HomeScreen> {
             MainCalendar(
               selectedDate: selectedDate,
               onDaySelected: onDaySelected,
+            ),
+            ScheduleCard(
+              startTime: 12,
+              endTime: 14,
+              content: "프로그래밍 공부",
             ),
           ],
         ),
