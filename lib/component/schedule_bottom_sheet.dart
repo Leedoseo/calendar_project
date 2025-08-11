@@ -1,5 +1,8 @@
 import 'package:calendar_scheduler/component/custom_text_field.dart';
 import 'package:calendar_scheduler/constants/colors.dart';
+import 'package:drift/drift.dart' hide Column;
+import 'package:get_it/get_it.dart';
+import 'package:calendar_scheduler/database/drift_database.dart';
 import 'package:flutter/material.dart';
 
 class ScheduleBottomSheet extends StatefulWidget {
@@ -89,13 +92,20 @@ class _ScheduleBottomSheetState extends State<ScheduleBottomSheet> {
     );
   }
 
-  void onSavePressed(){
+  void onSavePressed() async {
     if (formKey.currentState!.validate()) { // 폼 검증
       formKey.currentState!.save(); // 폼 저장
 
-      print(startTime); // 시작 시간 출력
-      print(endTime); // 종료 시간 출력
-      print(content); // 내용 출력
+      await GetIt.I<LocalDatabase>().createSchedule( // 일정 생성
+        SchedulesCompanion(
+          startTime: Value(startTime!),
+          endTime: Value(endTime!),
+          content: Value(content!),
+          date: Value(widget.selectedDate),
+        ),
+      );
+
+      Navigator.of(context).pop(); // 일정 생성 후 화면 뒤로 가기
     }
   }
   String? timeValidator(String? val) { // 시간 검증 함수
