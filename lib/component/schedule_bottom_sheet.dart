@@ -10,53 +10,74 @@ class ScheduleBottomSheet extends StatefulWidget {
 }
 
 class _ScheduleBottomSheetState extends State<ScheduleBottomSheet> {
+  final GlobalKey<FormState> formKey = GlobalKey(); // 폼 Key 생성
+
+  int? startTime;
+  int? endTime;
+  String? content;
 
   @override
   Widget build(BuildContext context) {
     final bottomInset = MediaQuery.of(context).viewInsets.bottom; // 키보드 높이 가져오기
-    return SafeArea(
-        child: Container(
-          height: MediaQuery.of(context).size.height / 2 + bottomInset, // 화면 절반 높이에 키보드 높이 추가하기
-          color: Colors.white,
-          child: Padding(
-            padding: EdgeInsets.only(left: 8, right: 8, top: 8, bottom: bottomInset), // Padding에 키보드 높이를 추기해서 위젯 전반적으로 위로 올려주기
-            child: Column(
-              children: [
-                Row(
-                  children: [
-                    Expanded(
-                      child: CustomTextField(
-                        label: "시작 시간",
-                        isTime: true,
+
+    return Form( // 텍스트 필드를 한 번에 관리할 수 있는 폼
+      key: formKey, // Form을 조작할 키 값
+        child: SafeArea(
+          child: Container(
+            height: MediaQuery.of(context).size.height / 2 + bottomInset, // 화면 절반 높이에 키보드 높이 추가하기
+            color: Colors.white,
+            child: Padding(
+              padding: EdgeInsets.only(left: 8, right: 8, top: 8, bottom: bottomInset), // Padding에 키보드 높이를 추기해서 위젯 전반적으로 위로 올려주기
+              child: Column(
+                children: [
+                  Row(
+                    children: [
+                      Expanded(
+                        child: CustomTextField(
+                          label: "시작 시간",
+                          isTime: true,
+                          onSaved: (String? val) { // 저장이 실행되면 starTime 변수에 텍스트 필드값 저장
+                            startTime = int.parse(val!);
+                          },
+                          validator: timeValidator,
+                        ),
                       ),
-                    ),
-                    const SizedBox(width: 16.0),
-                    Expanded(
-                      child: CustomTextField(
-                        label: "종료 시간",
-                        isTime: true,
+                      const SizedBox(width: 16.0),
+                      Expanded(
+                        child: CustomTextField(
+                          label: "종료 시간",
+                          isTime: true,
+                          onSaved: (String? val) {
+                            endTime = int.parse(val!);
+                          },
+                          validator: timeValidator,
+                        ),
                       ),
-                    ),
-                  ],
-                ),
-                SizedBox(height: 8.0),
-                Expanded(
-                  child: CustomTextField(
-                    label: "내용",
-                    isTime: false,
+                    ],
                   ),
-                ),
-                SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton( // 저장 버튼
-                    onPressed: onSavePressed,
-                    style: ElevatedButton.styleFrom(
-                      foregroundColor: PRIMARY_COLOR,
+                  SizedBox(height: 8.0),
+                  Expanded(
+                    child: CustomTextField(
+                      label: "내용",
+                      isTime: false,
+                      onSaved: (String? val) {
+                        content = val;
+                      },
+                      validator: contentValidator,
                     ),
-                    child: Text("저장"),
                   ),
-                ),
-              ],
+                  SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton( // 저장 버튼
+                      onPressed: onSavePressed,
+                      style: ElevatedButton.styleFrom(
+                        foregroundColor: PRIMARY_COLOR,
+                      ),
+                      child: Text("저장"),
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
         ),
@@ -64,5 +85,39 @@ class _ScheduleBottomSheetState extends State<ScheduleBottomSheet> {
   }
 
   void onSavePressed(){
+    if (formKey.currentState!.validate()) { // 폼 검증
+      formKey.currentState!.save(); // 폼 저장
+
+      print(startTime); // 시작 시간 출력
+      print(endTime); // 종료 시간 출력
+      print(content); // 내용 출력
+    }
+  }
+  String? timeValidator(String? val) { // 시간 검증 함수
+    if (val == null) {
+      return "값을 입력해주세요";
+    }
+
+    int? number;
+
+    try {
+      number = int.parse(val);
+    } catch (e) {
+      return "숫자를 입력해주세요";
+    }
+
+    if (number < 0 || number > 24) {
+      return "0시부터 24시 사이를 입력해주세요";
+    }
+
+    return null;
+  }
+
+  String? contentValidator(String? val) { // 내용 검증 함수
+    if(val == null || val.length == 0) {
+      return "값을 입력해주세요";
+    }
+
+    return null;
   }
 }
