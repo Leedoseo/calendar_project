@@ -3,6 +3,7 @@ import 'package:calendar_scheduler/component/schedule_card.dart';
 import 'package:calendar_scheduler/component/today_banner.dart';
 import 'package:calendar_scheduler/component/schedule_bottom_sheet.dart';
 import 'package:calendar_scheduler/constants/colors.dart';
+import 'package:calendar_scheduler/component/today_banner.dart';
 import 'package:calendar_scheduler/database/drift_database.dart';
 import 'package:get_it/get_it.dart';
 import 'package:flutter/material.dart';
@@ -48,9 +49,14 @@ class _HomeScreenState extends State<HomeScreen> {
               onDaySelected: onDaySelected,
             ),
             SizedBox(height: 8.0),
-            TodayBanner(
-              selectedDate: selectedDate,
-              count: 0,
+            StreamBuilder<List<Schedule>>( // 일정 Stream으로 받아오기
+              stream: GetIt.I<LocalDatabase>().watchSchedules(selectedDate),
+              builder: (context, snapshot) {
+                return TodayBanner(
+                    selectedDate: selectedDate,
+                    count: snapshot.data?.length ?? 0, // 일정 개수 입력해주기
+                );
+              },
             ),
             SizedBox(height: 8.0),
             Expanded( // 남는 공간을 전부 차지하기
@@ -65,7 +71,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     itemBuilder: (context, index) {
                       final schedule = snapshot.data![index];
                       return Dismissible(
-                        key: ObjectKey(schedule.id),
+                        key: ObjectKey(schedule.id), // 각 일정별로 절대 겹치지 않는 값을 ObjectKey에 감싸서 입력.
                         direction: DismissDirection.endToStart, // 좌에서 우로 드래그했을 때
                         onDismissed: (DismissDirection direction) { // 일정 삭제
                           GetIt.I<LocalDatabase> ().removeSchedule(schedule.id);
