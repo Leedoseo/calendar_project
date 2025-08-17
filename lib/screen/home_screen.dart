@@ -64,12 +64,19 @@ class _HomeScreenState extends State<HomeScreen> {
                     itemCount: snapshot.data!.length,
                     itemBuilder: (context, index) {
                       final schedule = snapshot.data![index];
-                      return Padding(
-                        padding: const EdgeInsets.only(bottom: 8.0, left: 8.0, right: 8.0),
-                        child: ScheduleCard(
-                          startTime: schedule.startTime,
-                          endTime: schedule.endTime,
-                          content: schedule.content,
+                      return Dismissible(
+                        key: ObjectKey(schedule.id),
+                        direction: DismissDirection.endToStart, // 좌에서 우로 드래그했을 때
+                        onDismissed: (DismissDirection direction) { // 일정 삭제
+                          GetIt.I<LocalDatabase> ().removeSchedule(schedule.id);
+                        },
+                        child: Padding(
+                          padding: const EdgeInsets.only(bottom: 8.0, left: 8.0, right: 8.0),
+                          child: ScheduleCard(
+                            startTime: schedule.startTime,
+                            endTime: schedule.endTime,
+                            content: schedule.content,
+                          ),
                         ),
                       );
                     },
