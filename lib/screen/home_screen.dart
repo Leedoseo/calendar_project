@@ -41,7 +41,7 @@ class HomeScreen extends StatelessWidget{
           children: [
             MainCalendar(
               selectedDate: selectedDate,
-              onDaySelected: onDaySelected,
+              onDaySelected: (selectedDate, focusedDate) => onDaySelected(selectedDate, focusedDate, context),
             ),
             SizedBox(height: 8.0),
 
@@ -83,7 +83,15 @@ class HomeScreen extends StatelessWidget{
     );
   }
 
-  void onDaySelected(DateTime selectedDate, DateTime foucusedDate) {
-
+  void onDaySelected(
+      DateTime selectedDate,
+      DateTime foucusedDate,
+      BuildContext context,
+      ) {
+    final provider = context.read<ScheduleProvider>();
+    provider.changeSelectedDate(
+      date: selectedDate,
+    );
+    provider.getSchedules(date: selectedDate);
   }
 }

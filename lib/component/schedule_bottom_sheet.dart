@@ -1,5 +1,8 @@
 import 'package:calendar_scheduler/component/custom_text_field.dart';
 import 'package:calendar_scheduler/constants/colors.dart';
+import 'package:calendar_scheduler/model/schedule_modal.dart';
+import 'package:provider/provider.dart';
+import 'package:calendar_scheduler/provider/schedule_provider.dart';
 import 'package:drift/drift.dart' hide Column;
 import 'package:get_it/get_it.dart';
 import 'package:calendar_scheduler/database/drift_database.dart';
@@ -77,7 +80,7 @@ class _ScheduleBottomSheetState extends State<ScheduleBottomSheet> {
                   SizedBox(
                     width: double.infinity,
                     child: ElevatedButton( // 저장 버튼
-                      onPressed: onSavePressed,
+                      onPressed: () => onSavePressed(context), // 함수에 context전달
                       style: ElevatedButton.styleFrom(
                         foregroundColor: PRIMARY_COLOR,
                       ),
@@ -92,17 +95,18 @@ class _ScheduleBottomSheetState extends State<ScheduleBottomSheet> {
     );
   }
 
-  void onSavePressed() async {
+  void onSavePressed(BuildContext context) async {
     if (formKey.currentState!.validate()) { // 폼 검증
       formKey.currentState!.save(); // 폼 저장
 
-      await GetIt.I<LocalDatabase>().createSchedule( // 일정 생성
-        SchedulesCompanion(
-          startTime: Value(startTime!),
-          endTime: Value(endTime!),
-          content: Value(content!),
-          date: Value(widget.selectedDate),
-        ),
+      context.read<ScheduleProvider>().createSchedule(
+          schedule: ScheduleModel(
+            id: "new_model",
+            content: content!,
+            date: widget.selectedDate,
+            startTime: startTime!,
+            endTime: endTime!,
+          ),
       );
 
       Navigator.of(context).pop(); // 일정 생성 후 화면 뒤로 가기
