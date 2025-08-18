@@ -4,26 +4,21 @@ import 'package:calendar_scheduler/component/today_banner.dart';
 import 'package:calendar_scheduler/component/schedule_bottom_sheet.dart';
 import 'package:calendar_scheduler/constants/colors.dart';
 import 'package:calendar_scheduler/component/today_banner.dart';
+import 'package:provider/provider.dart'; // Provider 불러오기
+import 'package:calendar_scheduler/provider/schedule_provider.dart';
 import 'package:calendar_scheduler/database/drift_database.dart';
 import 'package:get_it/get_it.dart';
 import 'package:flutter/material.dart';
 
-class HomeScreen extends StatefulWidget {
-  const HomeScreen ({Key? key}) : super(key: key);
-
-  @override
-  State<HomeScreen> createState() => _HomeScreenState();
-}
-
-class _HomeScreenState extends State<HomeScreen> {
-  DateTime selectedDate = DateTime.utc(
-    DateTime.now().year,
-    DateTime.now().month,
-    DateTime.now().day,
-  );
+class HomeScreen extends StatelessWidget{
 
   @override
   Widget build(BuildContext context) {
+
+    final provider = context.watch<ScheduleProvider(); // Provider 변경이 있을 때마다 build() 함수 재실행
+    final selectedDate = provider.selectedDate; // 선택된 날짜 가져오기
+    final schedules = provider.cache[selectedDate] ?? []; // 선택된 날짜에 해당하는 일정 가져오기
+
     return Scaffold(
       floatingActionButton: FloatingActionButton(
         backgroundColor: PRIMARY_COLOR,
@@ -49,45 +44,37 @@ class _HomeScreenState extends State<HomeScreen> {
               onDaySelected: onDaySelected,
             ),
             SizedBox(height: 8.0),
-            StreamBuilder<List<Schedule>>( // 일정 Stream으로 받아오기
-              stream: GetIt.I<LocalDatabase>().watchSchedules(selectedDate),
-              builder: (context, snapshot) {
-                return TodayBanner(
-                    selectedDate: selectedDate,
-                    count: snapshot.data?.length ?? 0, // 일정 개수 입력해주기
-                );
-              },
+
+            TodayBanner(
+                selectedDate: selectedDate,
+                count: schedules.length,
             ),
             SizedBox(height: 8.0),
-            Expanded( // 남는 공간을 전부 차지하기
-              child: StreamBuilder<List<Schedule>>(
-                stream: GetIt.I<LocalDatabase>().watchSchedules(selectedDate),
-                builder: (context, snapshot) {
-                  if(!snapshot.hasData) {
-                    return Container();
-                  }
-                  return ListView.builder(
-                    itemCount: snapshot.data!.length,
-                    itemBuilder: (context, index) {
-                      final schedule = snapshot.data![index];
-                      return Dismissible(
-                        key: ObjectKey(schedule.id), // 각 일정별로 절대 겹치지 않는 값을 ObjectKey에 감싸서 입력.
-                        direction: DismissDirection.endToStart, // 좌에서 우로 드래그했을 때
-                        onDismissed: (DismissDirection direction) { // 일정 삭제
-                          GetIt.I<LocalDatabase> ().removeSchedule(schedule.id);
-                        },
-                        child: Padding(
-                          padding: const EdgeInsets.only(bottom: 8.0, left: 8.0, right: 8.0),
-                          child: ScheduleCard(
-                            startTime: schedule.startTime,
-                            endTime: schedule.endTime,
-                            content: schedule.content,
-                          ),
-                        ),
-                      );
+
+            Expanded(
+              child: ListView.builder(
+                itemCount: schedules.length,
+                itemBuilder: (context, index) {
+                  final schedule = schedules[index];
+
+                  return Dismissible(
+                    key: ObjectKey(schedule.id),
+                    direction: DismissDirection.endToStart,
+                    onDismissed: (DismissDirection direction) {
+                      provider.deleteSchedule(date: selectedDate, id: schedule.id);
                     },
+                    child: Padding(
+                      padding: const EdgeInsets.only(
+                        bottom: 8.0, left: 8.0, right: 8.0
+                      ),
+                      child: ScheduleCard(
+                        startTime: schedule.startTIme,
+                        endTime: schedule.endTime,
+                        content: schedule.content,
+                      ),
+                    ),
                   );
-                },
+                }
               ),
             ),
           ],
@@ -97,8 +84,6 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   void onDaySelected(DateTime selectedDate, DateTime foucusedDate) {
-    setState(() {
-      this.selectedDate = selectedDate;
-    });
+
   }
 }
