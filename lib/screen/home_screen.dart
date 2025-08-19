@@ -15,6 +15,7 @@ class HomeScreen extends StatelessWidget{
   @override
   Widget build(BuildContext context) {
 
+    // Provider 상태 구독
     final provider = context.watch<ScheduleProvider>(); // Provider 변경이 있을 때마다 build() 함수 재실행
     final selectedDate = provider.selectedDate; // 선택된 날짜 가져오기
     final schedules = provider.cache[selectedDate] ?? []; // 선택된 날짜에 해당하는 일정 가져오기
