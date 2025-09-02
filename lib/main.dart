@@ -18,19 +18,10 @@ void main() async {
 
   await initializeDateFormatting(); // intl 패키지 초기화(다국어화)
 
-  final database = LocalDatabase(); // 데이터베이스 생성
-
-  GetIt.I.registerSingleton<LocalDatabase>(database); // GetIt에 데이터베이스 변수 주입
-
-  final repository = ScheduleRepository();
-  final scheduleProvider = ScheduleProvider(repository: repository);
-
   runApp(
-    ChangeNotifierProvider(
-      create: (_) => scheduleProvider,
-      child: MaterialApp(
-        home: HomeScreen(),
-      ),
-    ),
+    MaterialApp(
+      debugShowCheckedModeBanner: false,
+      home: HomeScreen(),
+    )
   );
 }
