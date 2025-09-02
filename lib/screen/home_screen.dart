@@ -53,8 +53,8 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
             SizedBox(height: 8.0),
 
-            StreamBuilder<QuerySnapshot>(
-              stream: FirebaseFirestore.instance
+            StreamBuilder<QuerySnapshot>( // StreamBuilder로 감싸기
+              stream: FirebaseFirestore.instance // ListView에 적용했던 같은 쿼리
                   .collection(
                     "schedule",
                   )
@@ -66,7 +66,7 @@ class _HomeScreenState extends State<HomeScreen> {
               builder: (context, snapshot) {
                 return TodayBanner(
                   selectedDate: selectedDate,
-                  count: snapshot.data?.docs.length ?? 0,
+                  count: snapshot.data?.docs.length ?? 0, // 개수 가져오기
                 );
               },
             ),
@@ -110,6 +110,11 @@ class _HomeScreenState extends State<HomeScreen> {
                         key: ObjectKey(schedule.id),
                         direction: DismissDirection.endToStart,
                         onDismissed: (DismissDirection direction) {
+
+                          FirebaseFirestore.instance // 특정 문서 삭제하기
+                              .collection("schedule")
+                              .doc(schedule.id)
+                              .delete();
                         },
                         child: Padding(
                           padding: const EdgeInsets.only(
