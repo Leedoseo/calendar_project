@@ -53,12 +53,24 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
             SizedBox(height: 8.0),
 
-            TodayBanner(
-              selectedDate: selectedDate,
-              count: 0,
+            StreamBuilder<QuerySnapshot>(
+              stream: FirebaseFirestore.instance
+                  .collection(
+                    "schedule",
+                  )
+                  .where(
+                    "date",
+                isEqualTo: "${selectedDate.year}${selectedDate.month.toString().padLeft(2, "0")}${selectedDate.day.toString().padLeft(2, "0")}",
+                  )
+                  .snapshots(),
+              builder: (context, snapshot) {
+                return TodayBanner(
+                  selectedDate: selectedDate,
+                  count: snapshot.data?.docs.length ?? 0,
+                );
+              },
             ),
             SizedBox(height: 8.0),
-
             Expanded(
               child: StreamBuilder<QuerySnapshot> (
                 stream: FirebaseFirestore.instance
