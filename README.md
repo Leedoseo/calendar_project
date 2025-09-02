@@ -9,7 +9,6 @@
 <img alt="Flutter" src="https://img.shields.io/badge/Flutter-3.x-02569B?logo=flutter&logoColor=white">
 <img alt="Dart" src="https://img.shields.io/badge/Dart-^3-blue?logo=dart&logoColor=white">
 <img alt="iOS" src="https://img.shields.io/badge/iOS-13%2B-black?logo=apple">
-<img alt="License" src="https://img.shields.io/badge/license-MIT-green">
 
 </div>
 
